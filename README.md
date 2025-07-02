@@ -1,3 +1,7 @@
+## 🐳 Docker-Ready Fork
+
+> **This fork adds complete Docker support to the Medusa B2B Starter.** Includes fixes for SSL issues, Yarn 4 workspaces, and Vite admin UI path resolution in containers.
+
 <h1 align="center">
   <a href="http://www.amitmerchant.com/electron-markdownify"><img src="https://github.com/user-attachments/assets/38ba3a7b-e07b-4117-8187-7b171eae3769" alt="B2B Commerce Starter" width="80" height="80"></a>
   <br>
@@ -31,14 +35,150 @@
 
 ## Table
 
-- [Prerequisites](#prerequisites)
-- [Overview](#overview)
-  - [Features](#features)
-  - [Demo](#demo)
-- [Quickstart](#quickstart)
 - [Update](#update)
+  - [Update packages](#update-packages)
+  - [Run migrations](#run-migrations)
 - [Resources](#resources)
-- [Contributors](#contributors)
+      - [Learn more about Medusa](#learn-more-about-medusa)
+      - [Learn more about Next.js](#learn-more-about-nextjs)
+  - [Contributors](#contributors)
+
+&nbsp;
+
+## 🐳 Docker Setup
+
+This fork adds complete Docker support for the Medusa B2B starter with fixes for common containerization issues.
+
+### Quick Start
+
+```bash
+# Clone this Docker-ready fork
+git clone https://github.com/YOUR_USERNAME/b2b-starter-medusa.git
+cd b2b-starter-medusa
+
+# Start all services with Docker
+docker-compose up -d
+
+# Wait for services to start, then visit:
+# - Backend + Admin: http://localhost:9000/app
+# - Storefront: http://localhost:3000
+```
+
+### Default Credentials
+
+- **Admin Email**: `admin@test.com`
+- **Admin Password**: `supersecret`
+
+### Services
+
+| Service | URL | Purpose |
+|---------|-----|---------|
+| **Backend + Admin** | http://localhost:9000/app | Medusa API & Admin Dashboard |
+| **Storefront** | http://localhost:3000 | Next.js B2B Storefront |
+| **PostgreSQL** | localhost:5432 | Database |
+| **Redis** | localhost:6379 | Cache & Sessions |
+
+### Key Docker Fixes
+
+This fork solves three major issues when running Medusa B2B in Docker:
+
+1. **🔒 SSL Connection Issues**: Fixed `databaseDriverOptions` configuration for containerized PostgreSQL
+2. **📦 Yarn 4 Workspace Resolution**: Proper file copying order and `--immutable` installs for workspace compatibility
+3. **🎨 Admin UI Blank Page**: Added symlink `/src → /app/src` to fix Vite's absolute import path resolution
+
+### Development Mode
+
+The Docker setup includes volume mounts for hot-reloading:
+
+```bash
+# Backend source code changes are reflected immediately
+# Storefront changes trigger Next.js hot-reload
+docker-compose logs -f backend    # View backend logs
+docker-compose logs -f storefront # View storefront logs
+```
+
+### Production Usage
+
+For production deployments, consider:
+- Using a managed PostgreSQL service
+- Setting up proper environment variables
+- Enabling SSL/TLS
+- Using a reverse proxy (nginx)
+
+### Docker Configuration
+
+The `docker-compose.yml` includes all necessary services:
+
+```yaml
+services:
+  # ───────── Infrastructure ─────────
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: medusa
+      POSTGRES_USER: medusa
+      POSTGRES_PASSWORD: secret
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  # ───────── Medusa B2B Backend + Admin ─────────
+  backend:
+    build: ./backend
+    env_file: ./backend/.env
+    environment:
+      - DATABASE_URL=postgres://medusa:secret@postgres:5432/medusa
+      - REDIS_URL=redis://redis:6379
+    depends_on: [postgres, redis]
+    ports: ["9000:9000"]
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/.medusa:/app/.medusa
+
+  # ───────── Next.js Storefront ─────────
+  storefront:
+    build: ./storefront
+    environment:
+      - NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://localhost:9000
+      - NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_01JJBQBV9Y2W3BGQFZZQ2F3T4W
+      - NEXT_PUBLIC_BASE_URL=http://localhost:3000
+      - NEXT_PUBLIC_DEFAULT_REGION=us
+      - REVALIDATE_SECRET=supersecret
+    depends_on: [backend]
+    ports: ["3000:3000"]
+    volumes:
+      - ./storefront:/app
+      - /app/node_modules
+      - /app/.next
+
+volumes:
+  pgdata:
+```
+
+### Troubleshooting
+
+**Common Issues:**
+
+1. **Port conflicts**: If you get "port already in use" errors:
+   ```bash
+   # Stop conflicting services
+   lsof -ti:9000 | xargs kill -9  # Backend
+   lsof -ti:3000 | xargs kill -9  # Storefront
+   ```
+
+2. **Database connection issues**: Ensure PostgreSQL is running:
+   ```bash
+   docker-compose logs postgres
+   ```
+
+3. **Admin UI blank page**: This fork fixes the Vite path resolution issue, but ensure the symlink was created:
+   ```bash
+   docker-compose exec backend ls -la /src
+   # Should show: /src -> /app/src
+   ```
 
 &nbsp;
 
