@@ -53,8 +53,8 @@ This fork adds complete Docker support for the Medusa B2B starter with fixes for
 
 ```bash
 # Clone this Docker-ready fork
-git clone https://github.com/YOUR_USERNAME/b2b-starter-medusa.git
-cd b2b-starter-medusa
+git clone https://github.com/christian561/b2b-starter-medusa__docker.git
+cd b2b-starter-medusa__docker
 
 # Start all services with Docker
 docker-compose up -d
