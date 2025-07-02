@@ -56,6 +56,8 @@ This fork adds complete Docker support for the Medusa B2B starter with fixes for
 git clone https://github.com/christian561/b2b-starter-medusa__docker.git
 cd b2b-starter-medusa__docker
 
+# Create docker-compose.yml by copying from section below
+
 # Start all services with Docker
 docker-compose up -d
 
