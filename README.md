@@ -59,7 +59,7 @@ cd b2b-starter-medusa__docker
 # Create docker-compose.yml by copying from section below
 
 # Start all services with Docker
-docker-compose up -d
+docker compose up -d
 
 # Wait for services to start, then visit:
 # - Backend + Admin: http://localhost:9000/app
@@ -85,7 +85,7 @@ After starting the containers, you need to configure the storefront's publishabl
 
 4. **Restart the storefront**:
    ```bash
-   docker-compose restart storefront
+   docker compose restart storefront
    ```
 
 ### Default Credentials
@@ -117,8 +117,8 @@ The Docker setup includes volume mounts for hot-reloading:
 ```bash
 # Backend source code changes are reflected immediately
 # Storefront changes trigger Next.js hot-reload
-docker-compose logs -f backend    # View backend logs
-docker-compose logs -f storefront # View storefront logs
+docker compose logs -f backend    # View backend logs
+docker compose logs -f storefront # View storefront logs
 ```
 
 ### Production Usage
@@ -195,12 +195,12 @@ volumes:
 
 2. **Database connection issues**: Ensure PostgreSQL is running:
    ```bash
-   docker-compose logs postgres
+   docker compose logs postgres
    ```
 
 3. **Admin UI blank page**: This fork fixes the Vite path resolution issue, but ensure the symlink was created:
    ```bash
-   docker-compose exec backend ls -la /src
+   docker compose exec backend ls -la /src
    # Should show: /src -> /app/src
    ```
 
@@ -208,7 +208,7 @@ volumes:
    ```bash
    # Get the key from admin panel, then update docker-compose.yml
    # and restart the storefront
-   docker-compose restart storefront
+   docker compose restart storefront
    ```
 
 &nbsp;
