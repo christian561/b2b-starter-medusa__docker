@@ -66,6 +66,28 @@ docker-compose up -d
 # - Storefront: http://localhost:3000
 ```
 
+### Setup Publishable Key (Required)
+
+After starting the containers, you need to configure the storefront's publishable key:
+
+1. **Visit Admin**: http://localhost:9000/app/settings/publishable-api-keys
+   - **Email**: `admin@test.com`
+   - **Password**: `supersecret`
+
+2. **Copy the "Webshop" key** (starts with `pk_`)
+
+3. **Update docker-compose.yml** with your key:
+   ```yaml
+   storefront:
+     environment:
+       - NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_YOUR_ACTUAL_KEY_HERE
+   ```
+
+4. **Restart the storefront**:
+   ```bash
+   docker-compose restart storefront
+   ```
+
 ### Default Credentials
 
 - **Admin Email**: `admin@test.com`
@@ -145,7 +167,7 @@ services:
     build: ./storefront
     environment:
       - NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://localhost:9000
-      - NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_01JJBQBV9Y2W3BGQFZZQ2F3T4W
+      - NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_YOUR_ACTUAL_KEY_HERE
       - NEXT_PUBLIC_BASE_URL=http://localhost:3000
       - NEXT_PUBLIC_DEFAULT_REGION=us
       - REVALIDATE_SECRET=supersecret
@@ -180,6 +202,13 @@ volumes:
    ```bash
    docker-compose exec backend ls -la /src
    # Should show: /src -> /app/src
+   ```
+
+4. **Storefront not loading products**: Update the publishable key:
+   ```bash
+   # Get the key from admin panel, then update docker-compose.yml
+   # and restart the storefront
+   docker-compose restart storefront
    ```
 
 &nbsp;
